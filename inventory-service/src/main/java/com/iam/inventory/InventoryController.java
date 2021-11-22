@@ -1,9 +1,6 @@
 package com.iam.inventory;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.UUID;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,6 +15,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.iam.exception.ItemNotFound;
 import com.iam.exception.ProductIdAlreadyExists;
 
 import javax.validation.Valid;
@@ -27,37 +25,41 @@ import javax.validation.Valid;
 public class InventoryController {
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(InventoryController.class);
-	@Autowired
-	InventoryRepository inventoryRepository;
+
 	@Autowired
 	InventoryService inventoryService;
 
 	
 	
-	
 	@GetMapping(value = "/inventories")
 	public InventoryList getAll() {
 		LOGGER.info("GETTING ALL INVENTORY ITEMS");
-
-		List<Inventory> inventoryList = new ArrayList<>();
-		inventoryRepository.findAll().forEach(inventory -> inventoryList.add(inventory));
-
-		InventoryList inventories = new InventoryList();
-		inventories.setInventoryList(inventoryList);
-		return inventories;
+		return inventoryService.getAllItems();
 	}
 
 	
 	
 	
 	@GetMapping(value = "/inventories/{id}")
-	public Inventory getInventoryItem(@PathVariable(value = "id") String inventoryId) {
+	public ResponseEntity<Object> getInventoryItem(@PathVariable(value = "id") String inventoryId){
 		LOGGER.info("GETTING INVENTORY ITEM [ID= " + inventoryId + "]");
-
+		Inventory foundItem = new Inventory();
+		try {
 		UUID idUUID = UUID.fromString(inventoryId.trim());
-		Inventory foundItem = inventoryService.findItemById(idUUID);
+		 foundItem = inventoryService.findItemById(idUUID);
 		// if (foundItem==null) throw new ItemNotFound(); //handled in Service
-		return foundItem;
+			return new ResponseEntity<>(foundItem, HttpStatus.OK);
+		}
+		catch (IllegalArgumentException e) {
+			LOGGER.warn(e.getClass()+" WAS CAUGHT");
+			LOGGER.warn("EXCEPTION MESSAGE: "+e.getMessage());
+			return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+		}
+		catch (ItemNotFound e) {
+			LOGGER.warn(e.getClass()+" WAS CAUGHT");
+			LOGGER.warn("EXCEPTION MESSAGE: "+e.getMessage());
+			return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+		}
 	}
 
 	

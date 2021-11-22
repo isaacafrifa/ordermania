@@ -1,20 +1,35 @@
 package com.iam.inventory;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.iam.exception.ItemNotFound;
 
 @Service
 public class InventoryService {
-	@Autowired
+	
 	private InventoryRepository inventoryRepository;
+	
+	public InventoryService(InventoryRepository inventoryRepository) {
+		this.inventoryRepository = inventoryRepository;
+	}
+
 	private static final Logger LOGGER = LoggerFactory.getLogger(InventoryService.class);
+	
+	
+	public InventoryList getAllItems(){
+		 List<Inventory> inventoryList = new ArrayList<>();
+			inventoryRepository.findAll().forEach(inventory -> inventoryList.add(inventory));
+			InventoryList inventories = new InventoryList();
+			inventories.setInventoryList(inventoryList);
+			return inventories;
+		}
 
 	public Inventory findItemById(UUID id) {
 		Optional<Inventory> optionalItem = this.inventoryRepository.findById(id);
