@@ -55,11 +55,7 @@ public class InventoryController {
 			LOGGER.warn("EXCEPTION MESSAGE: "+e.getMessage());
 			return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
 		}
-		catch (ItemNotFound e) {
-			LOGGER.warn(e.getClass()+" WAS CAUGHT");
-			LOGGER.warn("EXCEPTION MESSAGE: "+e.getMessage());
-			return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-		}
+	
 	}
 
 	
