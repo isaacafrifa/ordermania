@@ -1,0 +1,22 @@
+version: '3.8'
+services:
+      
+  # EUREKA SERVER
+  discovery_service:
+    # Configuration for building the docker image for the backend service
+    build: 
+      context: . # Use an image built from the specified dockerfile in the directory.
+      dockerfile: Dockerfile
+    container_name: discovery_service_app
+    ports:
+      - 8761:8761 # mapping local machine port along with port inside a docker container.
+    networks:
+      - discovery_network
+    restart: always # Always restart the container if it stops
+    environment: # Pass environment variables to the service
+      - SERVER_PORT=8761  # overwriting server_port in properties file   
+      - SPRING_APPLICATION_NAME=eureka
+networks:
+  discovery_network:
+    name: ordermania_network # Created this 'ordermania_network' network so all the other docker-compose 
+                              # containers can connect (be on the same network) and communicate with the Eureka Server

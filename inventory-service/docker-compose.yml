@@ -16,7 +16,7 @@ services:
     volumes:
       - ordermania_db_volume:/var/lib/mysql
       
-# App backend service
+  # APP BACKEND
   api_service:
     # Configuration for building the docker image for the backend service
     build: 
@@ -27,7 +27,7 @@ services:
       - 8080:8080 # mapping local machine port along with port inside a docker container.
     restart: always # Always restart the container if it stops
     environment: # Pass environment variables to the service
-      - SPRING_DATASOURCE_URL=<datasource-url> # overwriting datasource_url in properties file 
+      - SPRING_DATASOURCE_URL=jdbc:mysql://inventory_mysql:3306/<db-name> # overwriting datasource_url in properties file 
     depends_on:
       - inventory_db  # This service depends on mysql. Start that first.
 
