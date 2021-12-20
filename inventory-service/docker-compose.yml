@@ -7,6 +7,9 @@ services:
     container_name: inventory_mysql
     ports:
       - 3306:3306
+    # Network for inventory
+    networks:
+      - inventory_network
     environment:
       - MYSQL_DATABASE=<db-name>
       - MYSQL_USER=<username> # don't use root as username, learnt it the hard way😫 exceptions 😫
@@ -27,10 +30,20 @@ services:
       - 8080:8080 # mapping local machine port along with port inside a docker container.
     restart: always # Always restart the container if it stops
     environment: # Pass environment variables to the service
-      - SPRING_DATASOURCE_URL=jdbc:mysql://inventory_mysql:3306/<db-name> # overwriting datasource_url in properties file 
+      - SPRING_DATASOURCE_URL=jdbc:mysql://inventory_mysql:3306/<db-name> # overwriting datasource_url in properties file
+      - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://host.docker.internal:8761/eureka # overwriting eureka serviceUrl cos eurekaServer isn't localhost anymore
     depends_on:
       - inventory_db  # This service depends on mysql. Start that first.
+    # Network for inventory
+    networks:
+      - inventory_network
 
 # Names our volume
 volumes:
   ordermania_db_volume:
+
+# Names our network
+networks:
+  inventory_network:
+    external: true
+    name: ordermania_network # ordermania_network is the common network created in the Eureka server's docker-compose.
