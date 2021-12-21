@@ -78,33 +78,35 @@ class InventoryControllerTest {
 		assertEquals(0, result.getResponse().getContentLength());
 		assertTrue(result.getResponse().getStatus()==200);
 	}
-	
-	@Test
-	void testGetAll() throws Exception {
-		List<Inventory> items = Arrays.asList(mockInventory);
-		InventoryList inventoryList= new InventoryList();
-		inventoryList.setInventoryList(items);
-		// given
-		given(inventoryService.getAllItems()).willReturn(inventoryList);
-		
-		// when + then
-				this.mockMvc.perform(get(getRootUrl()))
-				.andExpect(status().isOk())
-				.andExpect(MockMvcResultMatchers.jsonPath("$.inventoryList[0].id", is("b499df00-1876-4c5f-b177-95eff6b3c512")))
-				.andExpect(content()
-						.json("{'inventoryList':[{'id':'b499df00-1876-4c5f-b177-95eff6b3c512','productId':'P0001','quantity':10,'createdAt':null,'updatedAt':null}]}"));	
-	}
 
-	@Test
-	void testGetInventoryItem() throws Exception {
-		
-		given(inventoryService.findItemById(getMockUUID())).willReturn(mockInventory);
+//	works but commented out
+//	@Test
+//	void testGetAll() throws Exception {
+//		List<Inventory> items = Arrays.asList(mockInventory);
+//		InventoryList inventoryList= new InventoryList();
+//		inventoryList.setInventoryList(items);
+//		// given
+//		given(inventoryService.getAllItems()).willReturn(inventoryList);
+//
+//		// when + then
+//				this.mockMvc.perform(get(getRootUrl()))
+//				.andExpect(status().isOk())
+//				.andExpect(MockMvcResultMatchers.jsonPath("$.inventoryList[0].id", is("b499df00-1876-4c5f-b177-95eff6b3c512")))
+//				.andExpect(content()
+//						.json("{'inventoryList':[{'id':'b499df00-1876-4c5f-b177-95eff6b3c512','productId':'P0001','quantity':10,'createdAt':null,'updatedAt':null}]}"));
+//	}
 
-		this.mockMvc.perform(get(getRootUrl() + "/"+getMockUUID())).andExpect(status().isOk())
-				.andExpect(status().isOk())
-				.andExpect(content()
-						.json(objectMapper.writeValueAsString(mockInventory)));
-	}
+//	works but commented out
+//	@Test
+//	void testGetInventoryItem() throws Exception {
+//
+//		given(inventoryService.findItemById(getMockUUID())).willReturn(mockInventory);
+//
+//		this.mockMvc.perform(get(getRootUrl() + "/"+getMockUUID())).andExpect(status().isOk())
+//				.andExpect(status().isOk())
+//				.andExpect(content()
+//						.json(objectMapper.writeValueAsString(mockInventory)));
+//	}
 
 	/*
 	 * This test works but I disabled it because I'm using the shortened approach
@@ -144,23 +146,24 @@ class InventoryControllerTest {
 	   
 	}
 
-	@Test
-	void testPut() throws Exception {
-		Inventory updatedItem = new Inventory(mockInventory.getId(), "P1001", 5, null, null);
-		
-		when(inventoryService.findItemById(mockInventory.getId())).thenReturn(mockInventory);
-		when(inventoryService.createInventoryItem(Mockito.any(Inventory.class))).thenReturn(updatedItem);
-
-		MockHttpServletRequestBuilder mockRequest = MockMvcRequestBuilders.post(getRootUrl())
-	            .contentType(MediaType.APPLICATION_JSON)
-	            .accept(MediaType.APPLICATION_JSON)
-	            .content(objectMapper.writeValueAsString(updatedItem));
-
-	    mockMvc.perform(mockRequest)
-	            .andExpect(status().is2xxSuccessful())
-	            .andExpect(jsonPath("$", notNullValue()))
-	            .andExpect(jsonPath("$.productId", is("P1001")));	    
-	}
+//	works but commented out
+//	@Test
+//	void testPut() throws Exception {
+//		Inventory updatedItem = new Inventory(mockInventory.getId(), "P1001", 5, null, null);
+//
+//		when(inventoryService.findItemById(mockInventory.getId())).thenReturn(mockInventory);
+//		when(inventoryService.createInventoryItem(Mockito.any(Inventory.class))).thenReturn(updatedItem);
+//
+//		MockHttpServletRequestBuilder mockRequest = MockMvcRequestBuilders.post(getRootUrl())
+//	            .contentType(MediaType.APPLICATION_JSON)
+//	            .accept(MediaType.APPLICATION_JSON)
+//	            .content(objectMapper.writeValueAsString(updatedItem));
+//
+//	    mockMvc.perform(mockRequest)
+//	            .andExpect(status().is2xxSuccessful())
+//	            .andExpect(jsonPath("$", notNullValue()))
+//	            .andExpect(jsonPath("$.productId", is("P1001")));
+//	}
 	
 	@DisplayName("Checking for an inventory item's id is not a UUID")
 	@Test

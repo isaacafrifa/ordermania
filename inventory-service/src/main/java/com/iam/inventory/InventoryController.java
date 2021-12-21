@@ -1,6 +1,10 @@
 package com.iam.inventory;
 
+import java.util.List;
 import java.util.UUID;
+
+import com.iam.product.Product;
+import com.iam.product.Products;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,6 +21,8 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.iam.exception.ItemNotFound;
 import com.iam.exception.ProductIdAlreadyExists;
+import org.springframework.web.reactive.function.client.WebClient;
+import reactor.core.publisher.Mono;
 
 import javax.validation.Valid;
 
@@ -25,25 +31,39 @@ import javax.validation.Valid;
 public class InventoryController {
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(InventoryController.class);
-
+	private final InventoryService inventoryService;
+	public InventoryController(InventoryService inventoryService) {
+		this.inventoryService = inventoryService;
+	}
 	@Autowired
-	InventoryService inventoryService;
+	WebClient webClient; //@Bean is located in MyBeans class
 
-	
-	
+
+	@GetMapping(value = "/tests")
+	public Products getAllProducts() {
+		LOGGER.info("GETTING ALL PRODUCTS");
+		Mono<Products> resultsMono = this.webClient
+				.get()
+//				.uri("/59bcd36d-043f-4fbf-bec0-74bf0eecb680")
+				.retrieve()
+				.bodyToMono(Products.class);
+		Products response= resultsMono.block();
+		return response;
+	}
+
+
 	@GetMapping(value = "/inventories")
-	public InventoryList getAll() {
+	public ExpandedInventoryList getAll() {
 		LOGGER.info("GETTING ALL INVENTORY ITEMS");
 		return inventoryService.getAllItems();
 	}
 
 	
 	
-	
 	@GetMapping(value = "/inventories/{id}")
-	public ResponseEntity<Object> getInventoryItem(@PathVariable(value = "id") String inventoryId){
+	public ResponseEntity<Object> getExpandedInventoryItem(@PathVariable(value = "id") String inventoryId){
 		LOGGER.info("GETTING INVENTORY ITEM [ID= " + inventoryId + "]");
-		Inventory foundItem = new Inventory();
+		ExpandedInventory foundItem = new ExpandedInventory();
 		try {
 		UUID idUUID = UUID.fromString(inventoryId.trim());
 		 foundItem = inventoryService.findItemById(idUUID);
@@ -55,10 +75,8 @@ public class InventoryController {
 			LOGGER.warn("EXCEPTION MESSAGE: "+e.getMessage());
 			return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
 		}
-	
 	}
 
-	
 	
 	
 	@PostMapping(value = "/inventories", consumes = MediaType.APPLICATION_JSON_VALUE)
@@ -80,38 +98,38 @@ public class InventoryController {
 	}
 
 	
+	//---will work on this later
 	
-	
-	@PutMapping(value = "/inventories/{id}", consumes = MediaType.APPLICATION_JSON_VALUE)
-	public ResponseEntity<Object> put(@Valid @RequestBody Inventory newItem,
-			@PathVariable(value = "id") String inventoryId) {
-		LOGGER.info("INITIATING UPDATE OF INVENTORY ITEM [ID= " + inventoryId + "]");
-
-		UUID idUUID = UUID.fromString(inventoryId.trim());
-		Inventory foundItem = inventoryService.findItemById(idUUID);
-		/*
-		 * We don't want inventoryItems with duplicate productIDs. So throw exception if
-		 * new productId already exists in system
-		 */
-		// Checking productId for inventory items other than the found Item
-		if (inventoryService.isNewProductId(newItem.getProductId(), foundItem.getProductId())) {
-
-			if (inventoryService.productIdExists(newItem.getProductId())) {
-				LOGGER.warn("INVENTORY ITEM HAS PRODUCT ID [" + newItem.getProductId() + "] WHICH ALREADY EXISTS AND CANT BE UPDATED");
-				throw new ProductIdAlreadyExists();
-			}
-		}
-		
-		foundItem.setProductId(newItem.getProductId());
-		foundItem.setQuantity(newItem.getQuantity());
-
-		Inventory updatedItem = inventoryService.createInventoryItem(foundItem);
-		if (updatedItem == null) {
-			LOGGER.warn("INVENTORY ITEM [DETAILS= " + foundItem + "] NOT UPDATED");
-			return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
-		}
-		LOGGER.info("INVENTORY ITEM [ID= " + inventoryId + "]" + " UPDATED SUCCESSFULLY");
-		return ResponseEntity.ok(updatedItem);
-	}
+//	@PutMapping(value = "/inventories/{id}", consumes = MediaType.APPLICATION_JSON_VALUE)
+//	public ResponseEntity<Object> put(@Valid @RequestBody Inventory newItem,
+//			@PathVariable(value = "id") String inventoryId) {
+//		LOGGER.info("INITIATING UPDATE OF INVENTORY ITEM [ID= " + inventoryId + "]");
+//
+//		UUID idUUID = UUID.fromString(inventoryId.trim());
+//		Inventory foundItem = inventoryService.findItemById(idUUID);
+//		/*
+//		 * We don't want inventoryItems with duplicate productIDs. So throw exception if
+//		 * new productId already exists in system
+//		 */
+//		// Checking productId for inventory items other than the found Item
+//		if (inventoryService.isNewProductId(newItem.getProductId(), foundItem.getProductId())) {
+//
+//			if (inventoryService.productIdExists(newItem.getProductId())) {
+//				LOGGER.warn("INVENTORY ITEM HAS PRODUCT ID [" + newItem.getProductId() + "] WHICH ALREADY EXISTS AND CANT BE UPDATED");
+//				throw new ProductIdAlreadyExists();
+//			}
+//		}
+//
+//		foundItem.setProductId(newItem.getProductId());
+//		foundItem.setQuantity(newItem.getQuantity());
+//
+//		Inventory updatedItem = inventoryService.createInventoryItem(foundItem);
+//		if (updatedItem == null) {
+//			LOGGER.warn("INVENTORY ITEM [DETAILS= " + foundItem + "] NOT UPDATED");
+//			return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+//		}
+//		LOGGER.info("INVENTORY ITEM [ID= " + inventoryId + "]" + " UPDATED SUCCESSFULLY");
+//		return ResponseEntity.ok(updatedItem);
+//	}
 
 }
