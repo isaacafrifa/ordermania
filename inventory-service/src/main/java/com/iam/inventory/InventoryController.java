@@ -1,13 +1,15 @@
 package com.iam.inventory;
 
+import java.math.BigDecimal;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
 import com.iam.product.Product;
 import com.iam.product.Products;
+import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -35,20 +37,13 @@ public class InventoryController {
 	public InventoryController(InventoryService inventoryService) {
 		this.inventoryService = inventoryService;
 	}
-	@Autowired
-	WebClient webClient; //@Bean is located in MyBeans class
 
 
-	@GetMapping(value = "/tests")
-	public Products getAllProducts() {
-		LOGGER.info("GETTING ALL PRODUCTS");
-		Mono<Products> resultsMono = this.webClient
-				.get()
-//				.uri("/59bcd36d-043f-4fbf-bec0-74bf0eecb680")
-				.retrieve()
-				.bodyToMono(Products.class);
-		Products response= resultsMono.block();
-		return response;
+	//Endpoint to check if product is in stock
+	@GetMapping("/{productCode}")
+	public Boolean isInStock(@PathVariable String productCode) {
+		LOGGER.info("Checking inventory stock for product with productCode - " + productCode);
+		return inventoryService.isInStock(productCode);
 	}
 
 
