@@ -22,6 +22,7 @@ public class InventoryService {
 
     private final InventoryRepository inventoryRepository;
     private static final String RESILIENCE4J_INSTANCE_NAME = "ProductServiceCB";
+    private static final String FALLBACK_PRODUCT_ID="e0848fa6-8207-43f9-91df-ef5bfb4df206";
 
     public InventoryService(InventoryRepository inventoryRepository) {
         this.inventoryRepository = inventoryRepository;
@@ -43,9 +44,10 @@ public class InventoryService {
                     UUID inventoryProductId = UUID.fromString(inventory.getProductId());
                     Product responseProduct = getProductFromProductService(inventoryProductId);
                     // create and return expandedInventory object with inventory details and product
-                    return new ExpandedInventory(
+                    ExpandedInventory expandedInventory= new ExpandedInventory(
                             inventory.getId(), responseProduct,
                             inventory.getQuantity(), inventory.getCreatedAt(), inventory.getUpdatedAt());
+                    return expandedInventory;
                 })
                 .collect(Collectors.toList());
         ExpandedInventoryList inventories = new ExpandedInventoryList();
@@ -102,12 +104,13 @@ public class InventoryService {
 
     //Remote call to Product Service
     public Product getProductFromProductService(UUID productId) {
-        return this.webClient
+        Product product= this.webClient
                 .get()
                 .uri("/" + productId)
                 .retrieve()
                 .bodyToMono(Product.class)
                 .block();
+        return product;
     }
 
     /* ----- FALLBACK METHODS ----- */
@@ -121,11 +124,12 @@ public class InventoryService {
         List<ExpandedInventory> refinedList = inventoryList.stream()
                 .map(inventory -> {
                     // create fallbackProduct to be used in place of actual Product from product-service
-                    Product fallbackProduct = new Product(UUID.randomUUID(), "fallback productName", BigDecimal.ZERO, "fallback description");
+                    Product fallbackProduct = new Product(UUID.fromString(FALLBACK_PRODUCT_ID), "fallback productName", BigDecimal.ZERO, "fallback description");
                     // create and return expandedInventory object with inventory details and fallback product
-                    return new ExpandedInventory(
+                    ExpandedInventory expandedInventory= new ExpandedInventory(
                             inventory.getId(), fallbackProduct,
                             inventory.getQuantity(), inventory.getCreatedAt(), inventory.getUpdatedAt());
+                    return expandedInventory;
                 })
                 .collect(Collectors.toList());
         ExpandedInventoryList inventories = new ExpandedInventoryList();
@@ -141,14 +145,13 @@ public class InventoryService {
             //Get Inventory obj from Optional
             Inventory foundItem = optionalItem.get();
             // create fallbackProduct to be used in place of actual Product from product-service
-            Product fallbackProduct = new Product(UUID.randomUUID(), "fallback productName", BigDecimal.ZERO, "fallback description");
+            Product fallbackProduct = new Product(UUID.fromString(FALLBACK_PRODUCT_ID), "fallback productName", BigDecimal.ZERO, "fallback description");
             // create and return expandedInventory object with inventory details and product
             ExpandedInventory expandedInventory = new ExpandedInventory(foundItem.getId(), fallbackProduct,
                     foundItem.getQuantity(), foundItem.getCreatedAt(), foundItem.getUpdatedAt());
             LOGGER.info("Expanded Inventory: " + expandedInventory);
             return expandedInventory;
         }
-        //LOGGER.warn("INVENTORY ITEM [ID= " + id + "] NOT FOUND");
         throw new ItemNotFound();
     }
 
