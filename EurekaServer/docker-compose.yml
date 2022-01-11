@@ -16,6 +16,26 @@ services:
     environment: # Pass environment variables to the service
       - SERVER_PORT=8761  # overwriting server_port in properties file   
       - SPRING_APPLICATION_NAME=eureka
+
+  #RABBITMQ SERVICE
+  rabbitmq:
+    image: rabbitmq:3-management
+    ports:
+      - 5672:5672  # AMQP protocol port
+      - 15672:15672  # HTTP management UI
+    environment:
+      - RABBITMQ_DEFAULT_USER=<username>
+      - RABBITMQ_DEFAULT_PASS=<password>
+    networks:
+      - discovery_network
+    volumes:
+      - ordermania_rabbitmq_volume:/var/lib/rabbitmq/ #maps the folder to store RabbitMQ data
+
+
+# Name our volumes
+volumes:
+  ordermania_rabbitmq_volume:
+# Name our networks
 networks:
   discovery_network:
     name: ordermania_network # Created this 'ordermania_network' network so all the other docker-compose 
