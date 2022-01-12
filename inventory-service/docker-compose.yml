@@ -12,17 +12,17 @@ services:
       - inventory_network
     environment:
       - MYSQL_DATABASE=<db-name>
-      - MYSQL_USER=<username> # don't use root as username, learnt it the hard way😫 exceptions 😫
-      - MYSQL_PASSWORD=<password>
-      - MYSQL_ROOT_PASSWORD=<root-password>
+        - MYSQL_USER=<username> # don't use root as username, learnt it the hard way😫 exceptions 😫
+        - MYSQL_PASSWORD=<password>
+        - MYSQL_ROOT_PASSWORD=<root-password>
     # Where our data will be persisted  
     volumes:
       - ordermania_db_volume:/var/lib/mysql
-      
+
   # APP BACKEND
   api_service:
     # Configuration for building the docker image for the backend service
-    build: 
+    build:
       context: . # Use an image built from the specified dockerfile in the directory.
       dockerfile: Dockerfile
     container_name: inventory_service_app
@@ -30,10 +30,14 @@ services:
       - 8080:8080 # mapping local machine port along with port inside a docker container.
     restart: always # Always restart the container if it stops
     environment: # Pass environment variables to the service
-      - SPRING_DATASOURCE_URL=jdbc:mysql://inventory_mysql:3306/<db-name> # overwriting datasource_url in properties file
+      - SPRING_DATASOURCE_URL=jdbc:mysql://inventory_mysql:3306/inventory_db # overwriting datasource_url in properties file
       - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://host.docker.internal:8761/eureka # overwriting eureka serviceUrl cos eurekaServer isn't localhost anymore
+      - SPRING_RABBITMQ_HOST=rabbitmq_service # overwriting RabbitMQ's default host cos localhost isnt valid here
+      - SPRING_RABBITMQ_USERNAME=<username> #overwriting rabbit's creds
+      - SPRING_RABBITMQ_PASSWORD=<password>
     depends_on:
       - inventory_db  # This service depends on mysql. Start that first.
+      - rabbitmq_service # this service is created in Eureka's docker compose
     # Network for inventory
     networks:
       - inventory_network

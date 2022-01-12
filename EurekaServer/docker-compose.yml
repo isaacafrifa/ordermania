@@ -18,7 +18,7 @@ services:
       - SPRING_APPLICATION_NAME=eureka
 
   #RABBITMQ SERVICE
-  rabbitmq:
+  rabbitmq_service:
     image: rabbitmq:3-management
     ports:
       - 5672:5672  # AMQP protocol port
