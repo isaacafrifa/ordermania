@@ -12,9 +12,9 @@ services:
       - inventory_network
     environment:
       - MYSQL_DATABASE=<db-name>
-        - MYSQL_USER=<username> # don't use root as username, learnt it the hard way😫 exceptions 😫
-        - MYSQL_PASSWORD=<password>
-        - MYSQL_ROOT_PASSWORD=<root-password>
+      - MYSQL_USER=<username> # don't use root as username, learnt it the hard way😫 exceptions 😫
+      - MYSQL_PASSWORD=<password>
+      - MYSQL_ROOT_PASSWORD=<root-password>
     # Where our data will be persisted  
     volumes:
       - ordermania_db_volume:/var/lib/mysql
