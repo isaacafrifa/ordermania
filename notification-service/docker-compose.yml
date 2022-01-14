@@ -1,0 +1,24 @@
+version: '3.8'
+services:
+  # APP BACKEND
+  api_service:
+    build:
+      context: . # Use an image built from the specified dockerfile in the directory.
+      dockerfile: Dockerfile
+    container_name: notification_service
+    ports:
+      - 8085:8085 # mapping local machine port along with port inside a docker container.
+    restart: always
+    environment:
+      - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://host.docker.internal:8761/eureka
+    depends_on:
+      - rabbitmq_service # this service is created in Eureka's docker compose
+    # Network for notification
+    networks:
+      - notification_network
+
+# Names our network
+networks:
+  notification_network:
+    external: true
+    name: ordermania_network # ordermania_network is the common network created in the Eureka server's docker-compose.
