@@ -11,6 +11,9 @@ services:
     restart: always
     environment:
       - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://host.docker.internal:8761/eureka
+      - SPRING_RABBITMQ_HOST=rabbitmq_service # overwriting RabbitMQ's default host cos localhost isnt valid here
+      - SPRING_RABBITMQ_USERNAME=<username> #overwriting rabbit's creds
+      - SPRING_RABBITMQ_PASSWORD=<password>
     depends_on:
       - rabbitmq_service # this service is created in Eureka's docker compose
     # Network for notification

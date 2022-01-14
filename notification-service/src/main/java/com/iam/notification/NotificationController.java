@@ -14,7 +14,7 @@ public class NotificationController {
 
     @GetMapping(value = "/notify")
     public String getAll() {
-        LOGGER.info("TESTING NOTIFICATION SERVICE");
+        LOGGER.info("NOTIFICATION SERVICE ENDPOINT REACHED");
         return "Endpoint Reached";
     }
 
