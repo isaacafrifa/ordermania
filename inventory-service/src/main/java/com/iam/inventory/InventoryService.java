@@ -85,6 +85,11 @@ public class InventoryService {
         return this.inventoryRepository.save(item);
     }
 
+    public void deleteInventoryItem(UUID itemId){
+        this.inventoryRepository.deleteById(itemId);
+    }
+
+
     public boolean isNewProductId(String newProductId, String foundProductId) {
         if (newProductId.contentEquals(foundProductId))
             return false;
