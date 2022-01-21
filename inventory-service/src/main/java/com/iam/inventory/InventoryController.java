@@ -64,6 +64,7 @@ public class InventoryController {
     public ResponseEntity<Object> post(@Valid @RequestBody Inventory inventory) {
         LOGGER.info("INITIATING CREATION OF INVENTORY ITEM [DETAILS= " + inventory + "]");
 
+        //Check if product ID is already linked to an inventory item
         if (inventoryService.productIdExists(inventory.getProductId())) {
             LOGGER.warn("INVENTORY ITEM WITH PRODUCT [ID= " + inventory.getProductId() + "] ALREADY EXISTS");
             throw new ProductIdAlreadyExists();

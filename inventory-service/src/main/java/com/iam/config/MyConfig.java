@@ -1,25 +1,28 @@
-package com.iam.beans;
+package com.iam.config;
 
+import org.springframework.cloud.client.loadbalancer.LoadBalanced;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.reactive.function.client.WebClient;
 
 @Configuration
-public class MyBeans {
+public class MyConfig {
 
-    //Create Web client to make calls to Product service
-    private WebClient webClient;
+    private final static String PRODUCT_SERVICE_URL="http://product-service/api/v1/products";
 
-    // url host won't be product-service cos we're calling from docker container
-    private final static String PRODUCT_SERVICE_URL="http://host.docker.internal:8081/api/v1/products";
+    //Add loadbalancer to WebClient.Builder and use builder to create webClient object
+    @Bean
+    @LoadBalanced
+    WebClient.Builder builder() {
+        return WebClient.builder();
+    }
 
     @Bean
-    //Create Web client to make calls to Product service
-    public WebClient getWebClient(WebClient.Builder webClientBuilder) {
-        this.webClient= webClientBuilder
+    WebClient getWebClient(WebClient.Builder builder) {
+        //Create Web client to make calls to Product service
+        WebClient webClient = builder
                 .baseUrl(PRODUCT_SERVICE_URL)
                 .build();
         return webClient;
     }
-
 }
