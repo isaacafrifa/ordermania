@@ -25,12 +25,11 @@ services:
     build: 
       context: . # Use an image built from the specified dockerfile in the directory.
       dockerfile: Dockerfile
-    container_name: product_service_app
     ports:
-      - 8081:8081 # mapping local machine port along with port inside a docker container.
+      - 8091-8095:8081 # mapping a range of ports on the host to one specific port inside Docker container, so we can scale our api_service
     restart: always # Always restart the container if it stops
     environment: # Pass environment variables to the service
-      - SPRING_DATASOURCE_URL=jdbc:mysql://product_mysql:3307/<db-name> # overwriting datasource_url in properties file 
+      - SPRING_DATASOURCE_URL=jdbc:mysql://product_mysql:3307/<db-name> # overwriting datasource_url in properties file
       - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://host.docker.internal:8761/eureka # overwriting eureka serviceUrl cos eurekaServer isn't localhost anymore
     depends_on:
       - product_db  # This service depends on mysql. Start that first.
